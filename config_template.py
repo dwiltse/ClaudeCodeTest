@@ -25,13 +25,16 @@ SERVICE_ACCOUNT_JSON = """
   "type": "service_account",
   "project_id": "your-project-id",
   "private_key_id": "your-private-key-id",
-  "private_key": "-----BEGIN PRIVATE KEY-----\\nYOUR_PRIVATE_KEY_HERE\\n-----END PRIVATE KEY-----\\n",
+  "private_key": "-----BEGIN PRIVATE KEY-----\\n"
+                 "YOUR_PRIVATE_KEY_HERE\\n"
+                 "-----END PRIVATE KEY-----\\n",
   "client_email": "your-service-account@your-project.iam.gserviceaccount.com",
   "client_id": "your-client-id",
   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
   "token_uri": "https://oauth2.googleapis.com/token",
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/your-service-account%40your-project.iam.gserviceaccount.com"
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/"
+                          "your-service-account%40your-project.iam.gserviceaccount.com"
 }
 """
 
@@ -76,8 +79,10 @@ COLUMN_NAMES = {
     'heard_about': 'How did you hear about this user group?',
     'first_time': 'Is this your first time attending?',
     'session_rating': 'How would you rate today\'s session?',
-    'future_topics': 'What topics would you like to see in future sessions? (Select all that apply)',
-    'recommend_score': 'How likely are you to recommend this user group to a colleague?',
+    'future_topics': ('What topics would you like to see in future sessions? '
+                      '(Select all that apply)'),
+    'recommend_score': ('How likely are you to recommend this user group to '
+                        'a colleague?'),
     'comments': 'Additional Comments or Suggestions'
 }
 
@@ -98,17 +103,18 @@ COLOR_SCHEME = 'viridis'  # Options: viridis, plasma, inferno, magma, cividis
 # HELPER FUNCTIONS
 # =============================================================================
 
+
 def get_credentials_for_databricks():
     """
     Get credentials using Databricks Secrets.
     Use this function in your Databricks notebook.
     """
     try:
-        credentials_json = dbutils.secrets.get(
+        credentials_json = dbutils.secrets.get(  # noqa: F821
             scope=DATABRICKS_SECRET_SCOPE,
             key=DATABRICKS_CREDENTIALS_KEY
         )
-        spreadsheet_id = dbutils.secrets.get(
+        spreadsheet_id = dbutils.secrets.get(  # noqa: F821
             scope=DATABRICKS_SECRET_SCOPE,
             key=DATABRICKS_SPREADSHEET_ID_KEY
         )

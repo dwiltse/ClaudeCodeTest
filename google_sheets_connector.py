@@ -8,7 +8,7 @@ from google.oauth2.service_account import Credentials
 import pandas as pd
 import json
 from datetime import datetime
-from typing import Optional, Dict, List
+from typing import Optional, List
 
 
 class GoogleSheetsConnector:
