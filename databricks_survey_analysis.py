@@ -6,15 +6,6 @@ This file is designed to be imported into Databricks as a notebook.
 Each section can be run as a separate cell.
 """
 
-# CELL 1: Install Required Libraries
-# ==================================
-# Run this first in Databricks
-"""
-%pip install gspread google-auth pandas plotly
-"""
-
-# CELL 2: Import Libraries
-# ========================
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -24,20 +15,28 @@ import json
 
 # For Databricks
 try:
-    from pyspark.sql import functions as F
+    import pyspark  # noqa: F401
     IN_DATABRICKS = True
-except:
+except ImportError:
     IN_DATABRICKS = False
 
 
-# CELL 3: Configuration
+# CELL 1: Install Required Libraries
+# ==================================
+# Run this first in Databricks
+"""
+%pip install gspread google-auth pandas plotly
+"""
+
+
+# CELL 2: Configuration
 # ====================
 # Update these with your actual values
 
 # Option 1: Using Databricks Secrets (Recommended)
 if IN_DATABRICKS:
-    CREDENTIALS_JSON = dbutils.secrets.get(scope="google-api", key="credentials")
-    SPREADSHEET_ID = dbutils.secrets.get(scope="google-api", key="spreadsheet-id")
+    CREDENTIALS_JSON = dbutils.secrets.get(scope="google-api", key="credentials")  # noqa: F821
+    SPREADSHEET_ID = dbutils.secrets.get(scope="google-api", key="spreadsheet-id")  # noqa: F821
 else:
     # Option 2: For local testing (NOT for production)
     CREDENTIALS_JSON = """
@@ -95,11 +94,11 @@ df = fetch_survey_data()
 print(f"Total responses: {len(df)}")
 print(f"Columns: {list(df.columns)}")
 print("\nFirst few responses:")
-display(df.head())
+display(df.head())  # noqa: F821
 
 # Convert to Spark DataFrame if in Databricks
 if IN_DATABRICKS:
-    spark_df = spark.createDataFrame(df)
+    spark_df = spark.createDataFrame(df)  # noqa: F821
     spark_df.createOrReplaceTempView("survey_responses")
     print("\nCreated temporary view: survey_responses")
 
@@ -152,6 +151,7 @@ def plot_response_timeline(df):
 
     return fig
 
+
 # Display the plot
 fig_timeline = plot_response_timeline(df)
 if fig_timeline:
@@ -162,6 +162,7 @@ if fig_timeline:
 # ====================================================
 # Adjust column name to match your actual form question
 EXPERIENCE_COLUMN = 'Experience Level'  # Change this to your actual column name
+
 
 def plot_experience_distribution(df, column_name):
     """Plot distribution of experience levels."""
@@ -183,6 +184,7 @@ def plot_experience_distribution(df, column_name):
     fig.update_layout(showlegend=False, height=400)
     return fig
 
+
 # Display the plot
 if EXPERIENCE_COLUMN in df.columns:
     fig_exp = plot_experience_distribution(df, EXPERIENCE_COLUMN)
@@ -194,6 +196,7 @@ if EXPERIENCE_COLUMN in df.columns:
 # ===========================================
 # Adjust to your actual column name
 TECH_INTEREST_COLUMN = 'Primary Technology Interest'
+
 
 def plot_technology_interest(df, column_name):
     """Plot technology interest as a pie chart."""
@@ -222,6 +225,7 @@ def plot_technology_interest(df, column_name):
     fig.update_layout(height=500)
     return fig
 
+
 # Display the plot
 if TECH_INTEREST_COLUMN in df.columns:
     fig_tech = plot_technology_interest(df, TECH_INTEREST_COLUMN)
@@ -232,6 +236,7 @@ if TECH_INTEREST_COLUMN in df.columns:
 # CELL 10: Visualization - Rating Analysis
 # ========================================
 RATING_COLUMN = 'Session Rating'  # Adjust to your actual column name
+
 
 def plot_rating_distribution(df, column_name):
     """Plot rating distribution as a histogram."""
@@ -271,6 +276,7 @@ def plot_rating_distribution(df, column_name):
 
     return fig, avg_rating
 
+
 # Display the plot
 if RATING_COLUMN in df.columns:
     result = plot_rating_distribution(df, RATING_COLUMN)
@@ -289,7 +295,7 @@ def create_dashboard(df):
     fig = make_subplots(
         rows=2, cols=2,
         subplot_titles=('Responses Over Time', 'Experience Level',
-                       'Technology Interest', 'Session Ratings'),
+                        'Technology Interest', 'Session Ratings'),
         specs=[[{'type': 'scatter'}, {'type': 'bar'}],
                [{'type': 'pie'}, {'type': 'histogram'}]]
     )
@@ -300,7 +306,7 @@ def create_dashboard(df):
         df_sorted['Count'] = range(1, len(df_sorted) + 1)
         fig.add_trace(
             go.Scatter(x=df_sorted['Timestamp'], y=df_sorted['Count'],
-                      mode='lines', name='Cumulative'),
+                       mode='lines', name='Cumulative'),
             row=1, col=1
         )
 
@@ -314,7 +320,11 @@ def create_dashboard(df):
         )
 
     # 3. Technology Interest
-    tech_col = next((col for col in df.columns if 'technology' in col.lower() or 'interest' in col.lower()), None)
+    tech_col = next(
+        (col for col in df.columns
+         if 'technology' in col.lower() or 'interest' in col.lower()),
+        None
+    )
     if tech_col:
         # Handle multi-select
         all_tech = []
@@ -345,6 +355,7 @@ def create_dashboard(df):
 
     return fig
 
+
 # Create and display dashboard
 print("Creating comprehensive dashboard...")
 dashboard = create_dashboard(df)
@@ -369,9 +380,9 @@ def auto_refresh_dashboard(interval_seconds=30, duration_minutes=60):
     iteration = 0
     while time.time() < end_time:
         iteration += 1
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"Refresh #{iteration} at {datetime.now().strftime('%H:%M:%S')}")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         try:
             # Fetch fresh data
@@ -438,9 +449,9 @@ ORDER BY count DESC
 # =========================
 def print_survey_summary(df):
     """Print a text summary of survey results."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("SURVEY SUMMARY")
-    print("="*60)
+    print("=" * 60)
     print(f"Total Responses: {len(df)}")
 
     if 'Timestamp' in df.columns:
@@ -455,13 +466,14 @@ def print_survey_summary(df):
                 pct = (count / len(df)) * 100
                 print(f"  {val}: {count} ({pct:.1f}%)")
 
+
 # Call summary
 print_survey_summary(df)
 
 
-print("\n" + "="*60)
+print("\n" + "=" * 60)
 print("Setup Complete! Dashboard is ready.")
-print("="*60)
+print("=" * 60)
 print("\nFor live demo during your meeting:")
 print("1. Share the Google Form link with participants")
 print("2. Run the auto_refresh_dashboard() function (CELL 12)")
